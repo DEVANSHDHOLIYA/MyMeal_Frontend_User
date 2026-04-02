@@ -5,29 +5,24 @@ import toast from "react-hot-toast";
 import { useForm, Controller } from "react-hook-form";
 import { BACKEND_URL } from "../config/config.js";
 
-
-const SkeletonTile = ({ isLarge }) => (
-  <div className={`animate-pulse rounded-xl bg-gray-100 border border-gray-50 ${isLarge ? 'h-32' : 'h-20'}`}>
-    <div className="p-4">
-      <div className="h-2 w-12 bg-gray-200 rounded mb-3"></div>
-      <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
-    </div>
+const SkeletonTile = () => (
+  <div className="animate-pulse flex flex-col gap-2">
+    <div className="h-3 w-20 bg-slate-200 rounded"></div>
+    <div className="h-11 w-full bg-white border border-slate-200 rounded-lg"></div>
   </div>
 );
 
 const DataTile = ({ label, name, value, isEditing, isTextArea, onChange, error }) => (
-  <div className={`p-4 rounded-xl border ${error ? 'border-red-200 bg-red-50/10' : 'border-gray-100 bg-white'} shadow-sm transition-all duration-300`}>
-    <p className={`text-[9px] font-bold uppercase tracking-wider mb-2 transition-colors ${error ? 'text-red-500' : isEditing ? 'text-orange-600' : 'text-gray-400'}`}>
-      {label} {error && <span className="lowercase font-normal">({error.message})</span>}
-    </p>
+  <div className="flex flex-col relative transition-all">
+    <label className="text-[13px] font-semibold text-slate-700 mb-1.5">{label}</label>
     
     {isEditing ? (
       <div className="relative">
         {isTextArea ? (
           <textarea
             name={name}
-            className="w-full bg-orange-50/30 border-2 border-orange-100 rounded-lg p-2.5 font-bold text-gray-900 outline-none resize-none text-sm transition-all focus:border-orange-500 focus:bg-white"
-            rows="2"
+            className={`w-full bg-white border ${error ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-slate-300 focus:border-orange-500 focus:ring-orange-100'} p-3 font-medium text-[15px] text-slate-900 outline-none resize-none rounded-lg focus:ring-2 transition-shadow shadow-sm`}
+            rows="3"
             value={value || ""}
             onChange={onChange}
           />
@@ -35,16 +30,19 @@ const DataTile = ({ label, name, value, isEditing, isTextArea, onChange, error }
           <input
             type="text"
             name={name}
-            className="w-full bg-orange-50/30 border-2 border-orange-100 rounded-lg px-3 py-2 font-bold text-gray-900 outline-none text-sm transition-all focus:border-orange-500 focus:bg-white"
+            className={`w-full bg-white border ${error ? 'border-red-300 focus:border-red-500 focus:ring-red-100' : 'border-slate-300 focus:border-orange-500 focus:ring-orange-100'} px-3 py-2.5 font-medium text-[15px] text-slate-900 outline-none rounded-lg focus:ring-2 transition-shadow shadow-sm`}
             value={value || ""}
             onChange={onChange}
           />
         )}
+        {error && <span className="absolute -bottom-5 left-0 text-[11px] text-red-500 font-medium">{error.message}</span>}
       </div>
     ) : (
-      <p className="font-bold text-gray-800 truncate text-sm px-1 min-h-[1.25rem]">
-        {value || <span className="text-gray-300 font-normal italic">Not set</span>}
-      </p>
+      <div className="bg-white border border-slate-200 py-2.5 px-3.5 rounded-lg shadow-sm">
+        <p className={`font-medium text-[15px] ${value ? 'text-slate-900' : 'text-slate-400 italic'}`}>
+          {value || "Not provided"}
+        </p>
+      </div>
     )}
   </div>
 );
@@ -118,123 +116,122 @@ const Profile = () => {
   };
 
   return (
-    <div className="h-fit bg-[#FBFBFC] p-4 flex items-start justify-center font-sans text-gray-900">
-      <div className="w-full max-w-5xl bg-white rounded-[2rem] shadow-sm border border-gray-100 flex flex-col md:flex-row overflow-hidden">
+    <div className="min-h-screen bg-white font-sans text-slate-900">
+      <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
         
-        {/* Sidebar */}
-        <aside className="w-full md:w-64 bg-gray-50/50 p-6 border-r border-gray-100 flex flex-col items-center md:items-start">
-          {fetching ? (
-            <div className="w-20 h-20 bg-gray-200 rounded-2xl animate-pulse mb-4"></div>
-          ) : (
-            <div className="w-20 h-20 bg-orange-600 rounded-2xl flex items-center justify-center text-white text-3xl font-black mb-4 shadow-lg shadow-orange-100">
-              {formData.name?.charAt(0) || "U"}
-            </div>
-          )}
-          
-          {fetching ? (
-            <div className="space-y-2 mb-6 w-full flex flex-col items-center md:items-start">
-              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-              <div className="h-3 w-32 bg-gray-200 rounded animate-pulse"></div>
-            </div>
-          ) : (
-            <>
-              <h1 className="text-lg font-black text-gray-900 leading-tight">{formData.name || "User"}</h1>
-              <p className="text-gray-400 font-semibold text-[10px] mb-6">{formData.email}</p>
-            </>
-          )}
+        {/* Header Block */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center pb-8 border-b border-slate-200 mb-10">
+           <div className="flex items-center gap-5 mb-6 md:mb-0">
+             <div className="w-20 h-20 bg-white border border-orange-100 rounded-2xl flex items-center justify-center text-orange-500 text-3xl font-bold shadow-sm">
+               {fetching ? <div className="w-full h-full bg-slate-200 animate-pulse rounded-2xl"></div> : formData.name?.charAt(0) || "U"}
+             </div>
+             <div>
+               <h1 className="text-2xl font-bold tracking-tight text-slate-900 mb-1">
+                 {fetching ? <div className="w-32 h-6 bg-slate-200 animate-pulse rounded"></div> : formData.name || "Your Profile"}
+               </h1>
+               <div className="flex items-center gap-2">
+                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+                 <p className="text-[15px] font-medium text-slate-500 leading-none">
+                   {fetching ? "..." : formData.email || "No email linked"}
+                 </p>
+               </div>
+             </div>
+           </div>
 
-          <nav className="flex flex-col gap-2 w-full">
-            <button 
-              onClick={() => setIsEditing(true)}
-              className={`w-full text-left px-4 py-2.5 cursor-pointer rounded-lg font-bold text-xs transition-all ${!isEditing && !fetching ? 'bg-orange-600 text-white shadow-md shadow-orange-100' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-              disabled={isEditing || fetching}
-            >
-              Edit Profile
-            </button>
-            <button onClick={logout} className="w-full text-left cursor-pointer px-4 py-2.5 rounded-lg font-bold text-xs text-red-500 hover:bg-red-50 transition-all">
-              Log Out
-            </button>
-          </nav>
-        </aside>
+           <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+             {!isEditing && (
+                <button type="button" onClick={logout} className="w-full sm:w-auto px-6 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg text-[13px] uppercase tracking-wide font-bold hover:bg-slate-50 hover:text-red-600 transition-all shadow-sm cursor-pointer disabled:cursor-not-allowed">
+                  Log Out
+                </button>
+             )}
+           </div>
+        </div>
 
-        {/* Main Content */}
-        <form onSubmit={handleSubmit(onSave)} className="p-6 md:p-8 w-full">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-xl font-black text-gray-900">Personal Info</h2>
-              <p className="text-gray-400 text-[11px]">Manage your profile details</p>
-            </div>
-            {isEditing && (
-              <div className="flex gap-2">
-                <button type="button" onClick={() => { setIsEditing(false); reset(); }} className="px-4 py-2 cursor-pointer bg-white border border-gray-200 rounded-lg font-bold text-[10px] uppercase text-gray-500 hover:bg-gray-50">
-                  Cancel
-                </button>
-                <button type="submit" disabled={isSaving} className="px-4 py-2 bg-orange-600 text-white rounded-lg cursor-pointer font-bold text-[10px] uppercase shadow-lg disabled:opacity-50 hover:bg-orange-700 transition-all">
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </button>
+        {/* Profile Form Content */}
+        <form onSubmit={handleSubmit(onSave)} className="w-full">
+
+           {/* Section Top Actions */}
+           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+              <div>
+                 <h2 className="text-xl font-bold text-slate-900 tracking-tight">Personal Information</h2>
+                 <p className="text-[14px] text-slate-500 mt-1">Review and manage your contact parameters.</p>
               </div>
-            )}
-          </div>
+              
+              <div className="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
+                 {isEditing ? (
+                   <>
+                     <button type="button" onClick={() => { setIsEditing(false); reset(); }} className="flex-1 sm:flex-none px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm transition-colors uppercase tracking-wide cursor-pointer disabled:cursor-not-allowed">
+                       Cancel
+                     </button>
+                     <button type="submit" disabled={isSaving} className="flex-1 sm:flex-none px-5 py-2.5 text-sm font-bold text-white bg-orange-500 rounded-lg hover:bg-orange-600 shadow-sm shadow-orange-500/20 disabled:opacity-50 transition-all uppercase tracking-wide cursor-pointer disabled:cursor-not-allowed">
+                       {isSaving ? "Saving..." : "Save Edits"}
+                     </button>
+                   </>
+                 ) : (
+                   <button type="button" onClick={() => setIsEditing(true)} disabled={fetching} className="flex-1 sm:flex-none px-5 py-2.5 text-sm font-bold text-white bg-orange-500 rounded-lg hover:bg-orange-600 shadow-sm disabled:opacity-50 transition-all uppercase tracking-wide cursor-pointer disabled:cursor-not-allowed">
+                      Edit Profile
+                   </button>
+                 )}
+              </div>
+           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {fetching ? (
-              // Display Skeletons while fetching
-              Array(6).fill(0).map((_, i) => <SkeletonTile key={i} />)
-            ) : (
-              [
-                { label: "Full Name", name: "name", rules: { required: "Required" } },
-                { label: "Phone Number", name: "phoneno", rules: { required: "Required", pattern: { value: /^\d{10}$/, message: "Must be 10 digits" } } },
-                { label: "City", name: "city", rules: { required: "Required" } },
-                { label: "State", name: "state", rules: { required: "Required" } },
-                { label: "Country", name: "country", rules: { required: "Required" } },
-                { label: "Postal Pincode", name: "pincode", rules: { required: "Required", pattern: { value: /^\d{6}$/, message: "Must be 6 digits" } } },
-              ].map((field) => (
-                <Controller
-                  key={field.name}
-                  name={field.name}
-                  control={control}
-                  rules={field.rules}
-                  render={({ field: { onChange, value }, fieldState: { error } }) => (
-                    <DataTile 
-                      label={field.label} 
-                      name={field.name} 
-                      value={value} 
-                      isEditing={isEditing} 
-                      onChange={onChange} 
-                      error={error} 
-                    />
-                  )}
-                />
-              ))
-            )}
-            
-            <div className="md:col-span-2">
-              {fetching ? <SkeletonTile /> : <DataTile label="Registered Email" name="email" value={formData.email} isEditing={false} />}
-            </div>
-
-            <div className="md:col-span-2">
+           {/* Standard Form Grid */}
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
               {fetching ? (
-                <SkeletonTile isLarge />
+                 Array(6).fill(0).map((_, i) => <SkeletonTile key={i} />)
               ) : (
-                <Controller
-                  name="address"
-                  control={control}
-                  rules={{ required: "Address is required" }}
-                  render={({ field: { onChange, value }, fieldState: { error } }) => (
-                    <DataTile 
-                      label="Delivery Address" 
-                      name="address" 
-                      value={value} 
-                      isEditing={isEditing} 
-                      isTextArea 
-                      onChange={onChange} 
-                      error={error} 
-                    />
-                  )}
-                />
+                [
+                  { label: "Full Name", name: "name", rules: { required: "Required" } },
+                  { label: "Phone Number", name: "phoneno", rules: { required: "Required", pattern: { value: /^\d{10}$/, message: "Must be 10 digits" } } },
+                  { label: "City", name: "city", rules: { required: "Required" } },
+                  { label: "State", name: "state", rules: { required: "Required" } },
+                  { label: "Country", name: "country", rules: { required: "Required" } },
+                  { label: "Postal Pincode", name: "pincode", rules: { required: "Required", pattern: { value: /^\d{6}$/, message: "Must be 6 digits" } } },
+                ].map((field) => (
+                  <Controller
+                    key={field.name}
+                    name={field.name}
+                    control={control}
+                    rules={field.rules}
+                    render={({ field: { onChange, value }, fieldState: { error } }) => (
+                      <DataTile 
+                        label={field.label} 
+                        name={field.name} 
+                        value={value} 
+                        isEditing={isEditing} 
+                        onChange={onChange} 
+                        error={error} 
+                      />
+                    )}
+                  />
+                ))
               )}
-            </div>
-          </div>
+
+              <div className="md:col-span-2 mt-4 pt-8 border-t border-slate-100">
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight mb-6">Delivery Address</h2>
+                {fetching ? (
+                  <SkeletonTile />
+                ) : (
+                  <Controller
+                    name="address"
+                    control={control}
+                    rules={{ required: "Address is required" }}
+                    render={({ field: { onChange, value }, fieldState: { error } }) => (
+                      <DataTile 
+                        label="Full Street Address" 
+                        name="address" 
+                        value={value} 
+                        isEditing={isEditing} 
+                        isTextArea 
+                        onChange={onChange} 
+                        error={error} 
+                      />
+                    )}
+                  />
+                )}
+              </div>
+           </div>
+
         </form>
       </div>
     </div>
