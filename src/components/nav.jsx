@@ -46,7 +46,7 @@ const Nav = () => {
             }}
           >
             <div className="relative overflow-hidden transition-transform duration-300 group-hover:rotate-6 drop-shadow-sm">
-              <img src="/public/logo.png" className="w-16 h-12 object-contain" alt="logo" />
+              <img src="/logo.png" className="w-16 h-12 object-contain" alt="logo" />
             </div>
             <h1 className="text-2xl font-black text-gray-800 tracking-tight">
               My<span className="text-orange-500">Meal</span>
@@ -124,7 +124,7 @@ const Nav = () => {
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
           <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setIsMobileMenuOpen(false); navigate("/dashboard"); }}>
             <div className="relative overflow-hidden transition-transform duration-300 drop-shadow-sm group-hover:rotate-6">
-              <img src="/public/logo.png" className="w-12 h-10 object-contain" alt="logo" />
+              <img src="/logo.png" className="w-12 h-10 object-contain" alt="logo" />
             </div>
             <h2 className="text-xl font-black text-gray-800 tracking-tight">
               My<span className="text-orange-500">Meal</span>
