@@ -121,14 +121,14 @@ function Signup() {
               <div className="space-y-3">
                 <div>
                   <label className={labelClass}>Full Name</label>
-                  <input type="text" placeholder="John Doe"
+                  <input type="text" placeholder="Username"
                     {...register("name", { required: "Name is required" })}
                     className={inputClass} />
                   {errors.name && <p className={errorClass}>· {errors.name.message}</p>}
                 </div>
                 <div>
                   <label className={labelClass}>Email Address</label>
-                  <input type="email" placeholder="john@example.com"
+                  <input type="email" placeholder="user@example.com"
                     {...register("email", { required: "Email is required" })}
                     className={inputClass} />
                   {errors.email && <p className={errorClass}>· {errors.email.message}</p>}

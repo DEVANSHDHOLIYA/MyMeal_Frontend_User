@@ -53,7 +53,7 @@ const Login = () => {
           <form onSubmit={handleSubmit(onLogin)} className="space-y-4">
             <div>
               <label className={labelClass}>Email Address</label>
-              <input type="email" placeholder="john@example.com"
+              <input type="email" placeholder="user@example.com"
                 {...register("email", { required: "Email is required" })}
                 className={inputClass} />
               {errors.email && <p className={errorClass}>· {errors.email.message}</p>}

@@ -18,6 +18,40 @@ const StatSkeleton = () => (
   </div>
 );
 
+const MealSkeleton = () => (
+  <div className="flex flex-col sm:flex-row animate-pulse">
+    <div className="sm:w-52 h-40 sm:h-auto bg-slate-100 border-b sm:border-b-0 sm:border-r border-slate-200 shrink-0" />
+    <div className="flex-1 p-6 flex flex-col sm:flex-row sm:items-start gap-6 justify-between">
+      <div className="flex-1">
+        <div className="flex gap-2 mb-3">
+          <div className="w-16 h-5 bg-slate-100 rounded-md" />
+          <div className="w-16 h-5 bg-slate-100 rounded-md" />
+        </div>
+        <div className="w-48 h-6 bg-slate-200 rounded mb-3" />
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {[1, 2, 3, 4].map((n) => <div key={n} className="w-16 h-6 bg-slate-100 rounded-lg" />)}
+        </div>
+        <div className="w-24 h-3 bg-slate-100 rounded" />
+      </div>
+      <div className="flex sm:flex-col gap-2 shrink-0 sm:pt-1">
+        <div className="w-full sm:w-24 h-9 bg-slate-100 rounded-xl" />
+        <div className="w-full sm:w-24 h-9 bg-slate-100 rounded-xl" />
+      </div>
+    </div>
+  </div>
+);
+
+const UpcomingMealSkeleton = () => (
+  <div className="flex items-center gap-4 px-6 py-4 animate-pulse">
+    <div className="w-10 h-10 rounded-xl bg-slate-100 shrink-0" />
+    <div className="flex-1 space-y-2">
+      <div className="h-4 w-32 bg-slate-200 rounded" />
+      <div className="h-2.5 w-16 bg-slate-100 rounded" />
+    </div>
+    <div className="w-4 h-4 rounded-full bg-slate-100 shrink-0" />
+  </div>
+);
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -91,8 +125,12 @@ const Dashboard = () => {
           <p className="text-[10px] font-bold uppercase tracking-widest text-orange-500 mb-1">
             {today.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </p>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            {greeting}{profile?.name ? `, ${profile.name.split(" ")[0]}` : ""} 👋
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center h-8">
+            {loading && !profile ? (
+              <span className="w-48 h-8 bg-slate-200 rounded animate-pulse inline-block" />
+            ) : (
+              `${greeting}${profile?.name ? `, ${profile.name.split(" ")[0]}` : ""} 👋`
+            )}
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">Here's your meal activity for today.</p>
         </div>
@@ -136,43 +174,47 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row">
-          {/* Image */}
-          <div className="sm:w-52 h-40 sm:h-auto bg-slate-100 border-b sm:border-b-0 sm:border-r border-slate-200 shrink-0 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=400&q=80"
-              alt="Meal" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-          </div>
-
-          <div className="flex-1 p-6 flex flex-col sm:flex-row sm:items-start gap-6 justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50 border border-slate-200 px-2 py-1 rounded-md">Dinner</span>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50 border border-slate-200 px-2 py-1 rounded-md">7:30 PM</span>
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">Paneer Butter Masala</h3>
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                {["3 Roti", "Paneer Masala", "Dal Tadka", "Rice", "Papad"].map((item, i) => (
-                  <span key={i} className="text-[11px] font-medium bg-white border border-slate-200 text-slate-600 px-2.5 py-1 rounded-lg">
-                    {item}
-                  </span>
-                ))}
-              </div>
-              <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400">
-                <MapPin size={11} className="text-orange-500" />
-                by HomeKitchen
-              </div>
+        {loading && !subscription ? (
+          <MealSkeleton />
+        ) : (
+          <div className="flex flex-col sm:flex-row">
+            {/* Image */}
+            <div className="sm:w-52 h-40 sm:h-auto bg-slate-100 border-b sm:border-b-0 sm:border-r border-slate-200 shrink-0 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=400&q=80"
+                alt="Meal" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
             </div>
 
-            <div className="flex sm:flex-col gap-2 shrink-0 sm:pt-1">
-              <button className="flex items-center justify-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-xl cursor-pointer transition-colors shadow-sm shadow-orange-500/20 w-full sm:w-auto">
-                Change
-              </button>
-              <button className="flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-xl cursor-pointer hover:border-orange-400 hover:text-orange-500 transition-all w-full sm:w-auto">
-                Skip
-              </button>
+            <div className="flex-1 p-6 flex flex-col sm:flex-row sm:items-start gap-6 justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50 border border-slate-200 px-2 py-1 rounded-md">Dinner</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50 border border-slate-200 px-2 py-1 rounded-md">7:30 PM</span>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">Paneer Butter Masala</h3>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {["3 Roti", "Paneer Masala", "Dal Tadka", "Rice", "Papad"].map((item, i) => (
+                    <span key={i} className="text-[11px] font-medium bg-white border border-slate-200 text-slate-600 px-2.5 py-1 rounded-lg">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400">
+                  <MapPin size={11} className="text-orange-500" />
+                  by HomeKitchen
+                </div>
+              </div>
+
+              <div className="flex sm:flex-col gap-2 shrink-0 sm:pt-1">
+                <button className="flex items-center justify-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-xl cursor-pointer transition-colors shadow-sm shadow-orange-500/20 w-full sm:w-auto">
+                  Change
+                </button>
+                <button className="flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-xl cursor-pointer hover:border-orange-400 hover:text-orange-500 transition-all w-full sm:w-auto">
+                  Skip
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ── BOTTOM GRID ────────────────────────────── */}
@@ -186,25 +228,29 @@ const Dashboard = () => {
             <span className="ml-auto text-[9px] font-bold text-slate-400 uppercase tracking-widest">This Week</span>
           </div>
           <div className="divide-y divide-slate-50">
-            {upcomingMeals.map((meal, i) => (
-              <div key={i} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/60 transition-colors">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
-                  meal.done ? 'bg-emerald-50 border-emerald-100' : 'bg-orange-50 border-orange-100'
-                }`}>
-                  <span className={`text-[10px] font-black uppercase ${meal.done ? 'text-emerald-500' : 'text-orange-500'}`}>
-                    {meal.day}
-                  </span>
+            {loading && !subscription ? (
+              [1, 2, 3].map((n) => <UpcomingMealSkeleton key={n} />)
+            ) : (
+              upcomingMeals.map((meal, i) => (
+                <div key={i} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/60 transition-colors">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                    meal.done ? 'bg-emerald-50 border-emerald-100' : 'bg-orange-50 border-orange-100'
+                  }`}>
+                    <span className={`text-[10px] font-black uppercase ${meal.done ? 'text-emerald-500' : 'text-orange-500'}`}>
+                      {meal.day}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-900">{meal.name}</p>
+                    <p className="text-[10px] text-slate-400 font-medium">{meal.time}</p>
+                  </div>
+                  {meal.done
+                    ? <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+                    : <ChevronRight size={14} className="text-slate-300 shrink-0" />
+                  }
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-900">{meal.name}</p>
-                  <p className="text-[10px] text-slate-400 font-medium">{meal.time}</p>
-                </div>
-                {meal.done
-                  ? <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-                  : <ChevronRight size={14} className="text-slate-300 shrink-0" />
-                }
-              </div>
-            ))}
+              ))
+            )}
           </div>
           <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/50">
             <button className="text-[10px] font-bold text-orange-500 hover:text-orange-600 uppercase tracking-widest cursor-pointer flex items-center gap-1">
@@ -230,8 +276,26 @@ const Dashboard = () => {
 
           <div className="p-6 flex flex-col gap-5">
             {loading && !subscription ? (
-              <div className="animate-pulse space-y-3">
-                {[1,2,3].map(n => <div key={n} className="h-3 bg-slate-100 rounded w-full" />)}
+              <div className="animate-pulse space-y-4">
+                <div className="space-y-3">
+                  {[1, 2, 3].map((n) => (
+                    <div key={n} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                      <div className="h-3 w-16 bg-slate-100 rounded" />
+                      <div className="h-4 w-24 bg-slate-200 rounded" />
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <div className="h-2.5 w-20 bg-slate-100 rounded" />
+                    <div className="h-2.5 w-8 bg-slate-200 rounded" />
+                  </div>
+                  <div className="h-2 bg-slate-100 rounded-full" />
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <div className="flex-1 h-9 bg-slate-200 rounded-xl" />
+                  <div className="flex-1 h-9 bg-slate-100 rounded-xl" />
+                </div>
               </div>
             ) : subscription ? (
               <>
