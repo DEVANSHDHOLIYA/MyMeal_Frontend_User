@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -14,6 +14,7 @@ import {
   X,
   CheckCircle2,
   Home,
+  Camera,
 } from "lucide-react";
 
 // ── Skeleton tile ──────────────────────────────────────────────
@@ -118,6 +119,10 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [preview, setPreview] = useState(null);
+  const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);
+
   const navigate = useNavigate();
   const user_token = localStorage.getItem("user_token");
 
@@ -137,6 +142,7 @@ const Profile = () => {
       state: "",
       country: "",
       pincode: "",
+      
     },
   });
 
@@ -147,6 +153,24 @@ const Profile = () => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${user_token}`,
     },
+  };
+  const profile_Authorization_Header = {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${user_token}`,
+    },
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const fetchProfile = useCallback(async () => {
@@ -179,11 +203,22 @@ const Profile = () => {
   const onSave = async (data) => {
     setIsSaving(true);
     const toastid = toast.loading("Updating Profile..");
+  
     try {
+      const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("email", data.email);
+    formData.append("phoneno", data.phoneno);
+    formData.append("state", data.state);
+    formData.append("city", data.city);
+    formData.append("country", data.country);
+    formData.append("address", data.address);
+    formData.append("photo",file);
+    formData.append("pincode", data.pincode);
       const res = await axios.post(
         `${BACKEND_URL}/profile/update_profile`,
-        data,
-        { headers: { Authorization: `Bearer ${user_token}` } }
+        formData,
+        profile_Authorization_Header
       );
       toast.success(res.data.message || "Profile Updated", { id: toastid });
       setIsEditing(false);
@@ -257,7 +292,6 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 px-6 md:px-12 py-10 pb-20">
       <div className="max-w-4xl mx-auto">
-
         {/* ── Page header ──────────────────────────────────────── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-slate-200 mb-10">
           <div>
@@ -273,7 +307,6 @@ const Profile = () => {
             </p>
           </div>
 
-          {/* Action buttons */}
           <div className="flex items-center gap-3">
             {isEditing ? (
               <>
@@ -318,16 +351,50 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* ── Identity strip ────────────────────────────────────── */}
+        {/* ── Identity strip (Enhanced Upload Visibility) ── */}
         <div className="mb-8">
           <div className="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
             {fetching ? (
               <div className="w-14 h-14 bg-slate-100 rounded-xl animate-pulse shrink-0" />
             ) : (
-              <div className="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl font-black shadow-sm shadow-orange-500/20 shrink-0">
-                {formData.name?.charAt(0)?.toUpperCase() || "U"}
+              <div
+                onClick={() => isEditing && fileInputRef.current.click()}
+                className={`w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl font-black shadow-sm shadow-orange-500/20 shrink-0 relative overflow-hidden group transition-all duration-300 ${
+                  isEditing 
+                    ? "cursor-pointer ring-4 ring-orange-500/30 scale-105" 
+                    : ""
+                }`}
+              >
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  formData.name?.charAt(0)?.toUpperCase() || "U"
+                )}
+
+                {/* Hidden File Input */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                {/* VISUAL OVERLAY: Visible icon on edit, darkens on hover */}
+                {isEditing && (
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center transition-all">
+                    <div className="bg-white/20 p-1.5 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform">
+                      <Camera size={18} className="text-white" />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
+
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
                 Account Holder
@@ -346,7 +413,7 @@ const Profile = () => {
                 </p>
               </div>
             </div>
-            {/* Read-only email tile */}
+
             {!fetching && (
               <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
                 <div className="flex items-center gap-1.5">
@@ -365,7 +432,6 @@ const Profile = () => {
 
         {/* ── Profile form ─────────────────────────────────────── */}
         <form id="profile-form" onSubmit={handleSubmit(onSave)}>
-          {/* Section label */}
           <div className="flex items-center gap-2 mb-4">
             <Home size={13} className="text-slate-400" />
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
@@ -409,7 +475,6 @@ const Profile = () => {
                   />
                 ))}
 
-                {/* Address — full width */}
                 <Controller
                   name="address"
                   control={control}
