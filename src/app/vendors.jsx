@@ -38,6 +38,7 @@ const Vendors = () => {
       if (response.data.success) {
         setVendors(response.data.data);
       }
+      
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to fetch vendors");
     } finally {
@@ -98,7 +99,7 @@ const Vendors = () => {
         rating: rating,
         review: review
       }, Authorization_Header);
-
+      
       if (response.data.success) {
         toast.success("Rating submitted successfully!", { id: toastid });
         setShowRatingModal(false);
@@ -187,7 +188,7 @@ const Vendors = () => {
                 {/* Image */}
                 <div className="h-44 bg-slate-100 border-b border-slate-200 relative overflow-hidden group">
                   <img
-                    src={vendor.profileImage || "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=400&q=80"}
+                    src={vendor.avatar?.url || "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=400&q=80"}
                     alt={vendor.companyname}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

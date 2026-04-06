@@ -49,8 +49,8 @@ const DataTile = ({
       error
         ? "border-red-300"
         : isEditing
-        ? "border-orange-300"
-        : "border-slate-200"
+          ? "border-orange-300"
+          : "border-slate-200"
     }`}
   >
     <div className="flex items-center gap-1.5 mb-2">
@@ -61,8 +61,8 @@ const DataTile = ({
             error
               ? "text-red-400"
               : isEditing
-              ? "text-orange-500"
-              : "text-slate-400"
+                ? "text-orange-500"
+                : "text-slate-400"
           }
         />
       )}
@@ -71,8 +71,8 @@ const DataTile = ({
           error
             ? "text-red-500"
             : isEditing
-            ? "text-orange-500"
-            : "text-slate-400"
+              ? "text-orange-500"
+              : "text-slate-400"
         }`}
       >
         {label}
@@ -121,6 +121,7 @@ const Profile = () => {
   const [fetching, setFetching] = useState(true);
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
+  const [profileData, setProfileData] = useState(null);
   const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
@@ -142,7 +143,7 @@ const Profile = () => {
       state: "",
       country: "",
       pincode: "",
-      
+      avatar: {},
     },
   });
 
@@ -178,11 +179,11 @@ const Profile = () => {
       const res = await axios.post(
         `${BACKEND_URL}/profile/get_profile`,
         {},
-        Authorization_Header
+        Authorization_Header,
       );
       if (res.data?.data) {
+        setProfileData(res.data.data);
         reset(res.data.data);
-        localStorage.setItem("user_profile", JSON.stringify(res.data.data));
       }
     } catch (err) {
       if (err.response?.status !== 401) toast.error("Could not sync profile");
@@ -192,37 +193,33 @@ const Profile = () => {
   }, [reset]);
 
   useEffect(() => {
-    const cached = localStorage.getItem("user_profile");
-    if (cached) {
-      reset(JSON.parse(cached));
-      setFetching(false);
-    }
     fetchProfile();
   }, [fetchProfile]);
 
   const onSave = async (data) => {
     setIsSaving(true);
     const toastid = toast.loading("Updating Profile..");
-  
+
     try {
       const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("email", data.email);
-    formData.append("phoneno", data.phoneno);
-    formData.append("state", data.state);
-    formData.append("city", data.city);
-    formData.append("country", data.country);
-    formData.append("address", data.address);
-    formData.append("photo",file);
-    formData.append("pincode", data.pincode);
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("phoneno", data.phoneno);
+      formData.append("state", data.state);
+      formData.append("city", data.city);
+      formData.append("country", data.country);
+      formData.append("address", data.address);
+      formData.append("photo", file);
+      formData.append("pincode", data.pincode);
+
       const res = await axios.post(
         `${BACKEND_URL}/profile/update_profile`,
         formData,
-        profile_Authorization_Header
+        profile_Authorization_Header,
       );
       toast.success(res.data.message || "Profile Updated", { id: toastid });
       setIsEditing(false);
-      localStorage.setItem("user_profile", JSON.stringify(data));
+      setProfileData(data);
     } catch (err) {
       toast.error(err.response?.data?.message || "Update failed", {
         id: toastid,
@@ -314,7 +311,7 @@ const Profile = () => {
                   type="button"
                   onClick={() => {
                     setIsEditing(false);
-                    reset();
+                    reset(profileData);
                   }}
                   className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest rounded-xl hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer"
                 >
@@ -353,16 +350,16 @@ const Profile = () => {
 
         {/* ── Identity strip (Enhanced Upload Visibility) ── */}
         <div className="mb-8">
-          <div className="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-6 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
             {fetching ? (
-              <div className="w-14 h-14 bg-slate-100 rounded-xl animate-pulse shrink-0" />
+              <div className="w-24 h-24 bg-slate-100 rounded-xl animate-pulse shrink-0" />
             ) : (
               <div
                 onClick={() => isEditing && fileInputRef.current.click()}
-                className={`w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl font-black shadow-sm shadow-orange-500/20 shrink-0 relative overflow-hidden group transition-all duration-300 ${
-                  isEditing 
-                    ? "cursor-pointer ring-4 ring-orange-500/30 scale-105" 
-                    : ""
+                className={`w-24 h-24 rounded-xl flex items-center justify-center text-white text-4xl font-black shadow-sm shadow-orange-500/20 shrink-0 relative overflow-hidden group transition-all duration-300 ${
+                  isEditing
+                    ? "cursor-pointer ring-4 ring-orange-500/30 scale-105"
+                    : "bg-orange-500"
                 }`}
               >
                 {preview ? (
@@ -371,11 +368,16 @@ const Profile = () => {
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
+                ) : profileData?.avatar?.url ? (
+                  <img
+                    src={profileData.avatar.url}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  formData.name?.charAt(0)?.toUpperCase() || "U"
+                  <User size={40} className="text-white" />
                 )}
 
-                {/* Hidden File Input */}
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -384,11 +386,10 @@ const Profile = () => {
                   className="hidden"
                 />
 
-                {/* VISUAL OVERLAY: Visible icon on edit, darkens on hover */}
                 {isEditing && (
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center transition-all">
-                    <div className="bg-white/20 p-1.5 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform">
-                      <Camera size={18} className="text-white" />
+                    <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform">
+                      <Camera size={22} className="text-white" />
                     </div>
                   </div>
                 )}
