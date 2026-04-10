@@ -8,14 +8,17 @@ import {
   Clock,
   CheckCircle2,
   ArrowLeft,
-  Utensils,
   Calendar,
   ShoppingCart,
   User,
   MessageSquare,
+  Lock,
+  Globe,
+  MoreHorizontal,
 } from "lucide-react";
 import { BACKEND_URL } from "../config/config.js";
 import toast from "react-hot-toast";
+import { a } from "framer-motion/m";
 
 const VendorDetails = () => {
   const { vendor_id } = useParams();
@@ -31,47 +34,145 @@ const VendorDetails = () => {
 
   const [vendor, setVendor] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [todayMeal, setTodayMeal] = useState({
-    lunch: {
-      title: "Executive Protein Lunch",
-      items: ["4 Roti", "Paneer Sabzi", "Dal Fry", "Rice", "Papad"],
-      time: "12:30 PM - 2:00 PM",
-      img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=400&q=80",
-    },
-    dinner: {
-      title: "Light Wellness Dinner",
-      items: ["2 Missi Roti", "Mix Veg Sabzi", "Moong Dal", "Fresh Salad"],
-      time: "7:30 PM - 9:00 PM",
-      img: "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=400&q=80",
-    },
-  });
+
   const [loading, setLoading] = useState(true);
-  const [plans, setPlans] = useState([
-    {
-      _id: "1",
-      duration: "1 Month",
-      price: "2800",
-      label: "2 meals per day",
-      description: "Standard Veg/Non-Veg Home-style Meals.",
-    },
-    {
-      _id: "2",
-      duration: "6 Months",
-      price: "4200",
-      label: "2 meals per day",
-      description:
-        "Premium Selection with Custom Macros and Dedicated Support.",
-      featured: true,
-    },
-    {
-      _id: "3",
-      duration: "1 Year",
-      price: "7000",
-      label: "2 meals per day",
-      description:
-        "Full Registry Access, VIP Support & Priority Delivery Routing.",
-    },
-  ]);
+  const [plans, setPlans] = useState([]);
+  const [meals, setMeals] = useState([]);
+
+  
+  const MealCard = ({ meal }) => (
+    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[4px_4px_0_rgba(15,23,42,0.03)] hover:border-slate-300 transition-all hover:-translate-y-1 group">
+      {/* IMAGE */}
+      <div className="relative h-48 overflow-hidden bg-slate-100">
+        <img
+          src={
+            meal.mealphoto?.url ||
+            "https://images.unsplash.com/photo-1495195129352-aec325a55b65?auto=format&fit=crop&q=80&w=400"
+          }
+          alt="Meal"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+
+        {/* TAGS */}
+        <div className="absolute top-3 left-3 flex gap-2">
+          {!(Array.isArray(meal.subscription_id) && meal.subscription_id.length > 0) ? (
+            <span className="px-2.5 py-1 rounded-full bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1">
+              <Lock size={8} /> Subscription
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 rounded-full bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1">
+              <Globe size={8} /> Normal Meal
+            </span>
+          )}
+        </div>
+
+        <div className="absolute top-3 right-3">
+          <span
+            className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${
+              meal.mealtime === "lunch"
+                ? "bg-orange-500 text-white"
+                : "bg-slate-800 text-white"
+            }`}
+          >
+            {meal.mealtime}
+          </span>
+        </div>
+      </div>
+
+      {/* CONTENT */}
+      <div className="p-5 space-y-4 flex flex-col h-[calc(100%-12rem)]">
+        {/* TITLE + ITEMS */}
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+            {Array.isArray(meal.items)
+              ? meal.items[0]
+              : meal.items?.split(",")[0] || "Meal Package"}
+          </h3>
+
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {Array.isArray(meal.items)
+              ? meal.items.map((item, i) => (
+                  <span
+                    key={i}
+                    className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100"
+                  >
+                    {item}
+                  </span>
+                ))
+              : meal.items
+                  ?.split(",")
+                  .filter((item) => item.trim() !== "")
+                  .map((item, i) => (
+                    <span
+                      key={i}
+                      className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100"
+                    >
+                      {item.trim()}
+                    </span>
+                  ))}
+          </div>
+        </div>
+
+        {/* PRICE + STATUS */}
+        <div className="grid grid-cols-2 gap-4 py-3 border-y border-slate-50">
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">
+              Price
+            </p>
+            <p className="text-base font-bold text-slate-900">₹{meal.price}</p>
+          </div>
+
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">
+              Status
+            </p>
+            <p
+              className={`text-[10px] font-black uppercase tracking-tight ${
+                meal.isavilable ? "text-emerald-500" : "text-rose-500"
+              }`}
+            >
+              {meal.isavilable ? "Available" : "Sold Out"}
+            </p>
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-2">
+            <Calendar size={14} className="text-orange-500" />
+            <span className="text-xs font-bold text-slate-500">
+              {meal.meal_date
+                ? new Date(meal.meal_date).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                  })
+                : "N/A"}
+            </span>
+          </div>
+
+         
+          {!(Array.isArray(meal.subscription_id) && meal.subscription_id.length > 0) ? (
+           <span className="text-[10px] font-bold text-indigo-500 uppercase">
+              Subscription Only
+            </span>
+          ) : (
+            
+             <button
+               onClick={() => navigate(`/showvendors/meal/payment/${meal._id}`)}
+              disabled={!meal.isavilable}
+              className={`text-xs font-bold px-3 py-1.5 rounded-md transition-colors ${
+                meal.isavilable
+                  ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
+              }`}
+            >
+              Buy Now
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   const fetchVendorData = useCallback(async () => {
     setLoading(true);
@@ -80,20 +181,24 @@ const VendorDetails = () => {
         `${BACKEND_URL}/user/getvendorsubscription/${vendor_id}`,
         Authorization_Header,
       );
-
+      const result = await axios.get(
+        `${BACKEND_URL}/meals/getmeals/${vendor_id}`,
+        Authorization_Header,
+      );
+      setMeals(result.data?.data);
+      
       if (res.data?.data) {
         setVendor(res.data.data.vendordata[0]);
-        console.log("Vendor Data:", res.data.data.vendordata[0]);
         setPlans(res.data.data.subscription);
       }
     } catch (err) {
-      console.error("Error fetching vendor data:", err);
+      toast.error(err.response?.data?.message);
       setVendor({});
     } finally {
       setLoading(false);
     }
   }, [vendor_id]);
-
+ 
   const getratings = async () => {
     try {
       const res = await axios.get(
@@ -136,7 +241,7 @@ const VendorDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 pb-20 px-6 md:px-12 pt-8">
+    <div className="min-h-screen  font-sans text-slate-900 pb-20 px-6 md:px-12 pt-8">
       <div className="max-w-5xl mx-auto">
         <button
           onClick={() => navigate("/showvendors")}
@@ -147,104 +252,74 @@ const VendorDetails = () => {
 
         {/* HEADER SECTION - PROFESSIONAL DATA ROW */}
         <header className="flex flex-col gap-6 pb-8 border-b border-slate-200 mb-12">
-  {/* Full-width Landscape Vendor Image */}
-  <div className="w-full h-64 md:h-80 rounded-xl overflow-hidden border border-slate-200 shadow-lg bg-slate-50">
-    <img
-      src={vendor.avatar?.url || "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1200&q=80"}
-      alt="Vendor"
-      className="w-full h-full object-cover grayscale-[15%]"
-    />
-  </div>
+          {/* Full-width Landscape Vendor Image */}
+          <div className="w-full h-64 md:h-80 rounded-xl overflow-hidden border border-slate-200 shadow-lg bg-slate-50">
+            <img
+              src={
+                vendor.avatar?.url ||
+                "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1200&q=80"
+              }
+              alt="Vendor"
+              className="w-full h-full object-cover grayscale-[15%]"
+            />
+          </div>
 
-  {/* Vendor Info */}
-  <div className="w-full">
-    <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">{vendor.companyname}</h1>
-    <p className="text-slate-600 mt-3 max-w-3xl text-sm md:text-base leading-relaxed">{vendor.about}</p>
+          {/* Vendor Info */}
+          <div className="w-full">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900">
+              {vendor.companyname}
+            </h1>
+            <p className="text-slate-600 mt-3 max-w-3xl text-sm md:text-base leading-relaxed">
+              {vendor.about}
+            </p>
 
-    <div className="flex flex-wrap gap-3 mt-6">
-      <span className="flex items-center gap-1.5 text-xs md:text-sm font-medium text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
-        <Star size={16} className="text-orange-500" fill="currentColor"/> {vendor.rating || "0.0"}
-      </span>
-      <span className="flex items-center gap-1.5 text-xs md:text-sm font-medium text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
-        <MapPin size={16} className="text-slate-400" /> {vendor.city}
-      </span>
-      <span className="flex items-center gap-1.5 text-xs md:text-sm font-medium text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
-        <Phone size={16} className="text-slate-400" /> {vendor.phoneno}
-      </span>
-    </div>
-  </div>
-</header>
-        {/* TODAY'S MENU - HORIZONTAL CARDS */}
-        <section className="mb-20">
-          <h2 className="text-lg font-bold text-slate-900 mb-6 tracking-tight">
-            Today's Menu
-          </h2>
-
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Lunch Card */}
-            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm flex flex-col sm:flex-row hover:border-slate-300 transition-colors">
-              <div className="sm:w-2/5 h-48 sm:h-auto bg-slate-100 border-b sm:border-b-0 sm:border-r border-slate-200">
-                <img
-                  src={todayMeal.lunch.img}
-                  className="w-full h-full object-cover"
-                  alt="Lunch"
-                />
-              </div>
-              <div className="p-6 sm:w-3/5 flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                      Lunch Protocol
-                    </span>
-                    <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
-                      <Clock size={12} /> {todayMeal.lunch.time}
-                    </span>
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 mb-3">
-                    {todayMeal.lunch.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                    {todayMeal.lunch.items.join(" • ")}
-                  </p>
-                </div>
-                <button className="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold uppercase tracking-widest px-4 py-2.5 rounded-lg transition-colors w-fit flex items-center gap-2 shadow-sm cursor-pointer">
-                  <ShoppingCart size={14} /> Order Direct
-                </button>
-              </div>
-            </div>
-
-            {/* Dinner Card */}
-            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm flex flex-col sm:flex-row hover:border-slate-300 transition-colors">
-              <div className="sm:w-2/5 h-48 sm:h-auto bg-slate-100 border-b sm:border-b-0 sm:border-r border-slate-200">
-                <img
-                  src={todayMeal.dinner.img}
-                  className="w-full h-full object-cover"
-                  alt="Dinner"
-                />
-              </div>
-              <div className="p-6 sm:w-3/5 flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                      Dinner Protocol
-                    </span>
-                    <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
-                      <Clock size={12} /> {todayMeal.dinner.time}
-                    </span>
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 mb-3">
-                    {todayMeal.dinner.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                    {todayMeal.dinner.items.join(" • ")}
-                  </p>
-                </div>
-                <div className="bg-slate-50 border border-slate-200 text-slate-500 text-xs font-medium px-4 py-2.5 rounded-lg w-fit flex items-center gap-2">
-                  <CheckCircle2 size={14} /> Subscription Bound
-                </div>
-              </div>
+            <div className="flex flex-wrap gap-3 mt-6">
+              <span className="flex items-center gap-1.5 text-xs md:text-sm font-medium text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
+                <Star
+                  size={16}
+                  className="text-orange-500"
+                  fill="currentColor"
+                />{" "}
+                {vendor.rating || "0.0"}
+              </span>
+              <span className="flex items-center gap-1.5 text-xs md:text-sm font-medium text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
+                <MapPin size={16} className="text-slate-400" /> {vendor.city}
+              </span>
+              <span className="flex items-center gap-1.5 text-xs md:text-sm font-medium text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-sm">
+                <Phone size={16} className="text-slate-400" /> {vendor.phoneno}
+              </span>
             </div>
           </div>
+        </header>
+        {/* MEALS SECTION */}
+        <section className="mb-20">
+          <h2 className="text-lg font-bold text-slate-900 mb-6 tracking-tight">
+            Available Meals
+          </h2>
+
+          {Array.isArray(meals) && meals.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {meals.map((meal) => (
+                <MealCard key={meal._id} meal={meal} />
+              ))}
+            </div>
+          ) : (
+            // 🔥 EMPTY STATE UI
+            <div className="py-16 flex flex-col items-center justify-center text-center border border-slate-200 rounded-xl bg-slate-50/50 shadow-[4px_4px_0_rgba(15,23,42,0.03)]">
+              <div className="w-14 h-14 flex items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm mb-4">
+                <Calendar size={24} className="text-slate-300" />
+              </div>
+
+              <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest">
+                No Meals Found
+              </h3>
+
+              <p className="text-xs text-slate-400 mt-2 max-w-xs">
+                This vendor hasn’t added any meals for today. Please check back
+                later.
+              </p>
+            </div>
+          )}
         </section>
 
         {/* SUBSCRIPTION PLANS — agent.md bento cards */}

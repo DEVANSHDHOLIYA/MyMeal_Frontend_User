@@ -19,6 +19,8 @@ const Vendors = lazy(() => import("./app/vendors"));
 const Vendordetails = lazy(() => import("./app/vendordetails"));
 const Payment = lazy(() => import("./app/payment"));
 const Subscription = lazy(() => import("./app/subscription"));
+const MealCart = lazy(() => import("./app/mealcart"));
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -34,6 +36,7 @@ export default function App() {
               <Route path="/showvendors/viewdetail/:vendor_id" element={<Vendordetails />} />
               <Route path="/showvendors/payment/:subscription_id" element={<Payment />} />
               <Route path="/subscription" element={<Subscription />} />
+              <Route path="/showvendors/meal/payment/:meal_id" element={<MealCart />} />
             </Route>
             
           </Route>
