@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { BACKEND_URL } from "../config/config.js";
 import toast from "react-hot-toast";
-import { a } from "framer-motion/m";
+
 
 const VendorDetails = () => {
   const { vendor_id } = useParams();
@@ -192,6 +192,14 @@ const VendorDetails = () => {
         setPlans(res.data.data.subscription);
       }
     } catch (err) {
+      if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
       toast.error(err.response?.data?.message);
       setVendor({});
     } finally {
@@ -207,6 +215,14 @@ const VendorDetails = () => {
       );
       setReviews(res.data?.data || []);
     } catch (err) {
+      if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
       toast.error(err.response?.data?.message);
     }
   };

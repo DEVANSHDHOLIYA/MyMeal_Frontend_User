@@ -65,6 +65,14 @@ const Subscription = () => {
       const res = await axios.get(`${BACKEND_URL}/user/getsubscription`, Authorization_Header);
       setMySubscription(res.data.data);
     } catch(err) {
+      if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
       toast.error(err.response?.data?.message || "Failed to fetch subscription details");
     } finally {
       setLoading(false);
@@ -86,6 +94,14 @@ const Subscription = () => {
         toast.success(res.data.message, { id: toastid });
         await getsubscriptioninfo(); // Refresh state immediately
       } catch(err) {
+        if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
          toast.error(err.response?.data?.message, { id: toastid });
          setLoading(false); // Stop loading on failure
       }

@@ -17,22 +17,30 @@ const MealCart = () => {
   const QR = QRCode.default ? QRCode.default : QRCode;
   
   const user_token = localStorage.getItem("user_token");
-
-  useEffect(() => {
-    const fetchMealData = async () => {
-      try {
-        const Authorization_Header = {
+  const Authorization_Header = {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${user_token}`,
           },
         };
+  useEffect(() => {
+    const fetchMealData = async () => {
+      try {
+        
         const res = await axios.get(
-          `${BACKEND_URL}/meals/mealbuydata/${meal_id}`,
-          Authorization_Header
+          `${BACKEND_URL}/meals/mealbuydata/${meal_id}`,Authorization_Header
         );
         setMeal(res.data?.data);
       } catch (error) {
+        if(error.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(error.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
+
         toast.error(error.response?.data?.message || "Failed to load meal data");
       } finally {
         setFetchingData(false);
@@ -77,15 +85,37 @@ const MealCart = () => {
     }, 600);
   };
 
-  const handleCheckout = () => {
-    setIsLoading(true);
-    const toastId = toast.loading("Confirming Payment...");
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Order placed successfully!", { id: toastId });
-      navigate("/dashboard");
-    }, 1500);
-  };
+ const handleCheckout = async () => {
+  setIsLoading(true);
+  const toastId = toast.loading("Confirming Payment...");
+
+  try {
+    const payload = {
+      meal_id: meal_id,
+      price: meal.price,
+      quantity: quantity,
+      total: total,
+    };
+
+    const res = await axios.post(`${BACKEND_URL}/order/addorder`,payload,Authorization_Header);
+    toast.success(res.data.message, { id: toastId });
+    navigate("/dashboard");
+  } catch (err) {
+    if (
+      err.response?.data?.message === "Session Expired. Please Login Again." ||
+      err.response?.data?.message === "Invaid token."
+    ) {
+      navigate("/login");
+    }
+
+    toast.error(
+      err?.response?.data?.message || "Failed to place order",
+      { id: toastId }
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-[85vh] bg-white flex justify-center p-4 md:p-8 font-sans w-full">

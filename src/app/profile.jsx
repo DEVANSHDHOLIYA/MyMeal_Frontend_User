@@ -186,6 +186,14 @@ const Profile = () => {
         reset(res.data.data);
       }
     } catch (err) {
+      if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
       if (err.response?.status !== 401) toast.error("Could not sync profile");
     } finally {
       setFetching(false);
@@ -221,6 +229,14 @@ const Profile = () => {
       setIsEditing(false);
       setProfileData(data);
     } catch (err) {
+      if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
       toast.error(err.response?.data?.message || "Update failed", {
         id: toastid,
       });

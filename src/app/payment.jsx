@@ -37,6 +37,14 @@ const MyMealGateway = () => {
       setPlanDetails(res.data.data.subscription);
       setUpi(res.data.data.upiid);
     } catch (err) {
+      if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
       toast.error(
         err.response?.data?.message || "Failed to fetch subscription details",
       );
@@ -56,6 +64,14 @@ const MyMealGateway = () => {
       toast.success(res.data.message, { id: toastid });
       navigate("/subscription");
     } catch (err) {
+      if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
       toast.error(err.response?.data?.message, { id: toastid });
     } finally {
       setIsLoading(false); 

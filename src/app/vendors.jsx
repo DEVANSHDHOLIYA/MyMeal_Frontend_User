@@ -40,6 +40,14 @@ const Vendors = () => {
       }
       
     } catch (error) {
+      if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
       toast.error(error.response?.data?.message || "Failed to fetch vendors");
     } finally {
       setLoading(false);
@@ -109,6 +117,14 @@ const Vendors = () => {
         fetchVendors();
       }
     } catch (error) {
+      if(err.response?.data?.message=="Session Expired. Please Login Again.")
+        {
+          navigate("/login");
+        }
+         if(err.response?.data?.message=="Invaid token.")
+        {
+          navigate("/login");
+        }
       toast.error(error.response?.data?.message || "Could not submit rating", { id: toastid });
     } finally {
       setIsSubmitting(false);
